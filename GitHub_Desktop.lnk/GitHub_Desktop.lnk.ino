@@ -4,9 +4,15 @@ const char* password = "Asim@123Tewari";
 
 const char* server = "www.lab40.in";
 const int port = 80;
-int i =10;
-WiFiClient client;
 
+char id_[6];
+char id_1[10];
+char kid[12];
+char k_id[12];
+int device_id;
+
+WiFiClient client;
+uint64_t chipid;
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);          //The WiFi is in station mode. The other is the softAP mode
@@ -20,11 +26,16 @@ void setup() {
 }
 void loop() {
   int  conn;
-  int chip_id = ESP.getEfuseMac();;
-  Serial.printf("  Flash Chip id = %08X\t", chip_id);
-  Serial.println();
-  Serial.println();
-  String body = "&ChipId=" + String(i) + "&SentBy=" + "Aniket";
+  chipid = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
+  sprintf(id_, "%04X", (uint16_t)(chipid >> 32));
+  sprintf(id_1, "%08X\n", (uint32_t)chipid);
+  strcat(kid, id_);
+  strcat(kid, id_1);
+  sprintf(k_id, "%c%c%c%c%c%c%c%c%c%c%c%c", kid[10], kid[11], kid[8], kid[9], kid[6], kid[7], kid[4], kid[5], kid[2], kid[3], kid[0], kid[1]);//k_id is the ssid name of AP
+  Serial.println(k_id);
+  device_id = atoi(k_id);;
+  
+  String body = "&ChipId=" + String(k_id) + "&SentBy=" + "Aniket";
   int body_len = body.length();
   Serial.println(".....");
   Serial.println(); Serial.print("For sending parameters, connecting to ");      Serial.println(server);
